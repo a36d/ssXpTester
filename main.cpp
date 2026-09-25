@@ -11,20 +11,20 @@ double CalculateReqXp(int level) {
 int main() {
 
     // Initialize Data <<
-    const int base6x6 = 50;
-    const int base9x9 = 150;
+    const int base6x6 = 20;
+    const int base9x9 = 60;
 
     const double maxMulti = 10.0;
     const double minMulti = 0.5;
 
-    const double chaosMulti = 1.35;
-    const double killerMulti = 1.5;
+    const double chaosMulti = 0.2;
+    const double killerMulti = 0.5;
 
     const double easyMulti = -0.5;
     const double normalMulti = 0; const int normalLvlReq = 5;
     const double hardMulti = 0.5; const int hardLvlReq = 10;
-    const double expertMulti = 1.5; const int expertLvlReq = 20;
-    const double impossibleMulti = 3; const int impossibleLvlReq = 40;
+    const double expertMulti = 2; const int expertLvlReq = 20;
+    const double impossibleMulti = 5; const int impossibleLvlReq = 40;
 
     double baseMulti = 1.0;
 
@@ -138,7 +138,7 @@ int main() {
 
         currentXp += (baseXpGain * baseMulti);
         cout << "\nXP Gain: " << (baseXpGain * baseMulti) << "\n";
-        if(currentXp >= reqXp) {
+        while(currentXp >= reqXp) {
             level++;
             currentXp -= reqXp;
             reqXp = CalculateReqXp(level);
