@@ -11,11 +11,11 @@ double CalculateReqXp(int level) {
 int main() {
 
     // Initialize Data <<
-    const int base6x6 = 20;
-    const int base9x9 = 60;
+    const int base6x6 = 50;
+    const int base9x9 = 150;
 
-    const double maxMulti = 10.0;
     const double minMulti = 0.5;
+    const double maxMulti = 10.0;
 
     const double chaosMulti = 0.2;
     const double killerMulti = 0.5;
@@ -130,6 +130,12 @@ int main() {
             cout << "Invalid difficulty, terminating run...\n\n";
             continue;
         }
+        if(baseMulti < minMulti) {
+            baseMulti = minMulti;
+        } else if(baseMulti > maxMulti) {
+            baseMulti = maxMulti;
+        }
+
         cout << "\nSelected Board: " << dString << " " << tString << " " << sString << endl;
         cout << "XP Multiplier: " << baseMulti << "\n\n";
         cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
