@@ -29,7 +29,7 @@ int main() {
     const int base9x9 = 200;
 
     const double minMulti = 0.5;
-    const double maxMulti = 50.0;
+    const double maxMulti = 50.0; // I either want to remove this or make it scale with your level
 
     // MULTIPLICATIVE
     const double chaosMulti = 1.25;
