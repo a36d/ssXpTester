@@ -1,31 +1,49 @@
 #include <iostream>
-#include <string>
 #include <iomanip>
+#include <cmath>
+#include <string>
+#include <sstream>
+#include <locale>
 
 using namespace std;
 
+string CommatizeNumber(double number) {
+    int num = floor(number);
+    stringstream ss;
+    
+    ss.imbue(locale("")); 
+    
+    ss << num;
+    return ss.str();
+}
+
 double CalculateReqXp(int level) {
-    return (100 / 1.1) * (pow(1.1, level));
+    double m = 1.2;
+    return floor((100 / m) * (pow(m, level)));
 }
 
 int main() {
 
     // Initialize Data <<
     const int base6x6 = 50;
-    const int base9x9 = 150;
+    const int base9x9 = 200;
 
     const double minMulti = 0.5;
-    const double maxMulti = 10.0;
+    const double maxMulti = 50.0;
 
-    const double chaosMulti = 0.2;
-    const double killerMulti = 0.5;
+    // MULTIPLICATIVE
+    const double chaosMulti = 1.25;
+    const double killerMulti = 2;
 
+    // ADDITIVE
     const double easyMulti = -0.5;
     const double normalMulti = 0; const int normalLvlReq = 5;
-    const double hardMulti = 0.5; const int hardLvlReq = 10;
-    const double expertMulti = 2; const int expertLvlReq = 20;
-    const double impossibleMulti = 5; const int impossibleLvlReq = 40;
+    const double hardMulti = 1; const int hardLvlReq = 10;
+    const double expertMulti = 5; const int expertLvlReq = 20;
+    const double impossibleMulti = 20; const int impossibleLvlReq = 40;
 
+    // XP MULTIPLIER
+    // Base Multi will always initially be equal to the player's level multi (1 + (level - 1) * 0.1)
     double baseMulti = 1.0;
 
     // Run a Test <<
@@ -58,11 +76,11 @@ int main() {
         cout << fixed << setprecision(2) << "----------------------------------------\n\n";
         int runs = 1;
         while (level < finalLevel) {
-            baseMulti = 1.0;
+            baseMulti = 1 + ((level - 1) * 0.1);
             cout << "Run #" << runs << "\n\n";
 
             string type, size, diff;
-            cout << "Enter the desired board type (cl/ch/k; default cl): ";
+            cout << "Enter the desired board type (cl/ch/k; default k): ";
             getline(cin, type);
             cout << "Enter the desired board size (6/9; default 9): ";
             getline(cin, size);;
@@ -71,13 +89,14 @@ int main() {
 
             string tString, sString, dString;
             
+            double typeMulti = 1.0;
             if(type == "ch") {
-                baseMulti += chaosMulti;
+                typeMulti = chaosMulti;
                 tString = "Chaos";
-            } else if(type == "k") {
-                baseMulti += killerMulti;
+            } else if(type == "" || type == "k") {
+                typeMulti = killerMulti;
                 tString = "Killer";
-            } else if(type == "") {
+            } else if(type == "cl") {
                 tString = "Classic";
             } else {
                 cout << "Invalid board type, terminating run...\n\n";
@@ -135,6 +154,8 @@ int main() {
                 cout << "Invalid difficulty, terminating run...\n\n";
                 continue;
             }
+            baseMulti *= typeMulti;
+
             if(baseMulti < minMulti) {
                 baseMulti = minMulti;
             } else if(baseMulti > maxMulti) {
@@ -143,22 +164,22 @@ int main() {
 
             cout << "\nSelected Board: " << dString << " " << tString << " " << sString << endl;
             cout << "XP Multiplier: " << baseMulti << "\n\n";
-            cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
+            cout << "Current Level: " << level << "\nXP: " << CommatizeNumber(currentXp) << " / " << CommatizeNumber(reqXp) << endl;
             cout << "[Enter] to continue...";
             cin.ignore();
 
             currentXp += (baseXpGain * baseMulti);
-            cout << "\nXP Gain: " << (baseXpGain * baseMulti) << "\n";
+            cout << "\nXP Gain: " << CommatizeNumber(baseXpGain * baseMulti) << "\n";
             while(currentXp >= reqXp) {
                 level++;
                 currentXp -= reqXp;
                 reqXp = CalculateReqXp(level);
             }
-            cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << "\n\n";
+            cout << "Current Level: " << level << "\nXP: " << CommatizeNumber(currentXp) << " / " << CommatizeNumber(reqXp) << "\n\n";
             runs++;
             cout << "----------------------------------------\n\n";
         }
-        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
+        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << CommatizeNumber(currentXp) << " / " << CommatizeNumber(reqXp) << endl;
     } else if(testType == "l" || testType == "") { // Linear Test <<
         string iLevel, iFinalLevel;
         int level, finalLevel;
@@ -191,11 +212,13 @@ int main() {
         getline(cin, size);
 
         string tString, sString, dString;
+
+        double typeMulti = 1.0;
         if(type == "ch") {
-            baseMulti += chaosMulti;
+            typeMulti = chaosMulti;
             tString = "Chaos";
         } else if(type == "k") {
-            baseMulti += killerMulti;
+            typeMulti = killerMulti;
             tString = "Killer";
         } else if(type == "") {
             tString = "Classic";
@@ -220,26 +243,7 @@ int main() {
         }
 
         double diffMulti = 0.0;
-        if (level < normalLvlReq) {
-            diffMulti = easyMulti;
-            dString = "Easy";
-        } else if (level < hardLvlReq) {
-            diffMulti = normalMulti;
-            dString = "Normal";
-        } else if (level < expertLvlReq) {
-            diffMulti = hardMulti;
-            dString = "Hard";
-        } else if (level < impossibleLvlReq) {
-            diffMulti = expertMulti;
-            dString = "Expert";
-        } else {
-            diffMulti = impossibleMulti;
-            dString = "Impossible";
-        }
-        baseMulti += diffMulti;
-
         while(level < finalLevel) {
-            baseMulti -= diffMulti;
             if (level < normalLvlReq) {
                 diffMulti = easyMulti;
                 dString = "Easy";
@@ -256,12 +260,14 @@ int main() {
                 diffMulti = impossibleMulti;
                 dString = "Impossible";
             }
+            baseMulti += diffMulti;
+            baseMulti *= typeMulti;
+
             if(baseMulti < minMulti) {
                 baseMulti = minMulti;
             } else if(baseMulti > maxMulti) {
                 baseMulti = maxMulti;
             }
-            baseMulti += diffMulti;
 
             currentXp += (baseXpGain * baseMulti);
             while(currentXp >= reqXp) {
@@ -269,9 +275,13 @@ int main() {
                 currentXp -= reqXp;
                 reqXp = CalculateReqXp(level);
             }
+            baseMulti = 1 + ((level - 1) * 0.1);
+
             runs++;
         }
-        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
+        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << CommatizeNumber(currentXp) << " / " << CommatizeNumber(reqXp) << endl;
+    } else {
+        cout << "Invalid test mode, terminating program...";
     }
     return 0;
 }

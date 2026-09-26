@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# But keep .gitignore itself
+!.gitignore
+
+# Keep main.cpp
+!main.cpp
