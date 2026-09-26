@@ -29,43 +29,168 @@ int main() {
     double baseMulti = 1.0;
 
     // Run a Test <<
-    string iLevel, iFinalLevel;
-    int level, finalLevel;
-    double currentXp = 0.0;
+    string testType;
+    cout << "Select a test mode: Full Simulation or Linear Test (f/l; default l): ";
+    getline(cin, testType);
 
-    cout << "Enter starting level: ";
-    getline(cin, iLevel);
-    cout << "Enter final level: ";
-    getline(cin, iFinalLevel);
-    
-    if(iLevel.empty()) {
-        level = 1;
-    } else {
-        level = stoi(iLevel);
-    }
-    if(iFinalLevel.empty()) {
-        finalLevel = 1;
-    } else {
-        finalLevel = stoi(iFinalLevel);
-    }
-    double reqXp = CalculateReqXp(level); 
+    if(testType == "f") { // Full Simulation <<
+        string iLevel, iFinalLevel;
+        int level, finalLevel;
+        double currentXp = 0.0;
 
-    cout << fixed << setprecision(2) << "----------------------------------------\n\n";
-    int runs = 1;
-    while (level < finalLevel) {
-        baseMulti = 1.0;
-        cout << "Run #" << runs << "\n\n";
+        cout << "Enter starting level: ";
+        getline(cin, iLevel);
+        cout << "Enter final level: ";
+        getline(cin, iFinalLevel);
+        
+        if(iLevel.empty()) {
+            level = 1;
+        } else {
+            level = stoi(iLevel);
+        }
+        if(iFinalLevel.empty()) {
+            finalLevel = 1;
+        } else {
+            finalLevel = stoi(iFinalLevel);
+        }
+        double reqXp = CalculateReqXp(level); 
+
+        cout << fixed << setprecision(2) << "----------------------------------------\n\n";
+        int runs = 1;
+        while (level < finalLevel) {
+            baseMulti = 1.0;
+            cout << "Run #" << runs << "\n\n";
+
+            string type, size, diff;
+            cout << "Enter the desired board type (cl/ch/k; default cl): ";
+            getline(cin, type);
+            cout << "Enter the desired board size (6/9; default 9): ";
+            getline(cin, size);;
+            cout << "Enter the desired difficulty (e/n/h/e/i; default MAX): ";
+            getline(cin, diff);
+
+            string tString, sString, dString;
+            
+            if(type == "ch") {
+                baseMulti += chaosMulti;
+                tString = "Chaos";
+            } else if(type == "k") {
+                baseMulti += killerMulti;
+                tString = "Killer";
+            } else if(type == "") {
+                tString = "Classic";
+            } else {
+                cout << "Invalid board type, terminating run...\n\n";
+                continue;
+            }
+
+            int baseXpGain = 0;
+            if(size == "6") {
+                baseXpGain = base6x6;
+                sString = "6x6";
+            } else if(size == "9") {
+                baseXpGain = base9x9;
+                sString = "9x9";
+            } else if(size == "") {
+                baseXpGain = base9x9;
+                sString = "9x9";
+            } else {
+                cout << "Invalid board size, terminating run...\n\n";
+                continue;
+            }
+
+            if(diff == "e") {
+                baseMulti += easyMulti;
+                dString = "Easy";
+            } else if(diff == "n") {
+                baseMulti += normalMulti;
+                dString = "Normal";
+            } else if(diff == "h") {
+                baseMulti += hardMulti;
+                dString = "Hard";
+            } else if(diff == "x") {
+                baseMulti += expertMulti;
+                dString = "Expert";
+            } else if(diff == "i") {
+                baseMulti += impossibleMulti;
+                dString = "Impossible";
+            } else if(diff == "") {
+                if (level < normalLvlReq) {
+                    baseMulti += easyMulti;
+                    dString = "Easy";
+                } else if (level < hardLvlReq) {
+                    baseMulti += normalMulti;
+                    dString = "Normal";
+                } else if (level < expertLvlReq) {
+                    baseMulti += hardMulti;
+                    dString = "Hard";
+                } else if (level < impossibleLvlReq) {
+                    baseMulti += expertMulti;
+                    dString = "Expert";
+                } else {
+                    baseMulti += impossibleMulti;
+                    dString = "Impossible";
+                }
+            } else {
+                cout << "Invalid difficulty, terminating run...\n\n";
+                continue;
+            }
+            if(baseMulti < minMulti) {
+                baseMulti = minMulti;
+            } else if(baseMulti > maxMulti) {
+                baseMulti = maxMulti;
+            }
+
+            cout << "\nSelected Board: " << dString << " " << tString << " " << sString << endl;
+            cout << "XP Multiplier: " << baseMulti << "\n\n";
+            cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
+            cout << "[Enter] to continue...";
+            cin.ignore();
+
+            currentXp += (baseXpGain * baseMulti);
+            cout << "\nXP Gain: " << (baseXpGain * baseMulti) << "\n";
+            while(currentXp >= reqXp) {
+                level++;
+                currentXp -= reqXp;
+                reqXp = CalculateReqXp(level);
+            }
+            cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << "\n\n";
+            runs++;
+            cout << "----------------------------------------\n\n";
+        }
+        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
+    } else if(testType == "l" || testType == "") { // Linear Test <<
+        string iLevel, iFinalLevel;
+        int level, finalLevel;
+        double currentXp = 0.0;
+
+        cout << "Enter starting level: ";
+        getline(cin, iLevel);
+        cout << "Enter final level: ";
+        getline(cin, iFinalLevel);
+        
+        if(iLevel.empty()) {
+            level = 1;
+        } else {
+            level = stoi(iLevel);
+        }
+        if(iFinalLevel.empty()) {
+            finalLevel = 1;
+        } else {
+            finalLevel = stoi(iFinalLevel);
+        }
+        double reqXp = CalculateReqXp(level); 
+
+        cout << fixed << setprecision(2) << "----------------------------------------\n\n";
+        int runs = 1;
 
         string type, size, diff;
-        cout << "Enter the desired board type (cl/ch/k; default cl): ";
+        cout << "Enter the fixed board type (cl/ch/k; default cl): ";
         getline(cin, type);
-        cout << "Enter the desired board size (6/9; default 9): ";
-        getline(cin, size);;
-        cout << "Enter the desired difficulty (e/n/h/e/i; default MAX): ";
-        getline(cin, diff);
+        cout << "Enter the fixed board size (6/9; default 9): ";
+        getline(cin, size);
 
         string tString, sString, dString;
-        
         if(type == "ch") {
             baseMulti += chaosMulti;
             tString = "Chaos";
@@ -76,7 +201,7 @@ int main() {
             tString = "Classic";
         } else {
             cout << "Invalid board type, terminating run...\n\n";
-            continue;
+            exit(1);
         }
 
         int baseXpGain = 0;
@@ -91,69 +216,62 @@ int main() {
             sString = "9x9";
         } else {
             cout << "Invalid board size, terminating run...\n\n";
-            continue;
+            exit(1);
         }
 
-        if(diff == "e") {
-            baseMulti += easyMulti;
+        double diffMulti = 0.0;
+        if (level < normalLvlReq) {
+            diffMulti = easyMulti;
             dString = "Easy";
-        } else if(diff == "n") {
-            baseMulti += normalMulti;
+        } else if (level < hardLvlReq) {
+            diffMulti = normalMulti;
             dString = "Normal";
-        } else if(diff == "h") {
-            baseMulti += hardMulti;
+        } else if (level < expertLvlReq) {
+            diffMulti = hardMulti;
             dString = "Hard";
-        } else if(diff == "x") {
-            baseMulti += expertMulti;
+        } else if (level < impossibleLvlReq) {
+            diffMulti = expertMulti;
             dString = "Expert";
-        } else if(diff == "i") {
-            baseMulti += impossibleMulti;
+        } else {
+            diffMulti = impossibleMulti;
             dString = "Impossible";
-        } else if(diff == "") {
+        }
+        baseMulti += diffMulti;
+
+        while(level < finalLevel) {
+            baseMulti -= diffMulti;
             if (level < normalLvlReq) {
-                baseMulti += easyMulti;
+                diffMulti = easyMulti;
                 dString = "Easy";
             } else if (level < hardLvlReq) {
-                baseMulti += normalMulti;
+                diffMulti = normalMulti;
                 dString = "Normal";
             } else if (level < expertLvlReq) {
-                baseMulti += hardMulti;
+                diffMulti = hardMulti;
                 dString = "Hard";
             } else if (level < impossibleLvlReq) {
-                baseMulti += expertMulti;
+                diffMulti = expertMulti;
                 dString = "Expert";
             } else {
-                baseMulti += impossibleMulti;
+                diffMulti = impossibleMulti;
                 dString = "Impossible";
             }
-        } else {
-            cout << "Invalid difficulty, terminating run...\n\n";
-            continue;
-        }
-        if(baseMulti < minMulti) {
-            baseMulti = minMulti;
-        } else if(baseMulti > maxMulti) {
-            baseMulti = maxMulti;
-        }
+            if(baseMulti < minMulti) {
+                baseMulti = minMulti;
+            } else if(baseMulti > maxMulti) {
+                baseMulti = maxMulti;
+            }
+            baseMulti += diffMulti;
 
-        cout << "\nSelected Board: " << dString << " " << tString << " " << sString << endl;
-        cout << "XP Multiplier: " << baseMulti << "\n\n";
-        cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
-        cout << "[Enter] to continue...";
-        cin.ignore();
-
-        currentXp += (baseXpGain * baseMulti);
-        cout << "\nXP Gain: " << (baseXpGain * baseMulti) << "\n";
-        while(currentXp >= reqXp) {
-            level++;
-            currentXp -= reqXp;
-            reqXp = CalculateReqXp(level);
+            currentXp += (baseXpGain * baseMulti);
+            while(currentXp >= reqXp) {
+                level++;
+                currentXp -= reqXp;
+                reqXp = CalculateReqXp(level);
+            }
+            runs++;
         }
-        cout << "Current Level: " << level << "\nXP: " << currentXp << "/" << reqXp << "\n\n";
-        runs++;
-        cout << "----------------------------------------\n\n";
+        cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
     }
-    cout << "Total Runs: " << runs << "\nLevel " << iLevel << " -> " << finalLevel << "\n\nLevel: " << level << "\nXP: " << currentXp << "/" << reqXp << endl;
-
     return 0;
 }
